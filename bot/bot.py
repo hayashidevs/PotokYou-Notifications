@@ -1,17 +1,16 @@
-import requests
+import asyncio
 import telegram
+from telegram.ext import Application
+import requests
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 from config import BOT_TOKEN, API_BASE_URL, load_message
 
-# Initialize the bot with the token
-bot = telegram.Bot(token=BOT_TOKEN)
-
-def fetch_clients():
+async def fetch_clients():
     """
-    Fetch clients from the Django REST API.
+    Fetch clients from the Django REST API asynchronously.
     """
     try:
         response = requests.get(API_BASE_URL)
@@ -21,12 +20,12 @@ def fetch_clients():
         print(f"Failed to fetch client data: {e}")
         return []
 
-def send_message_to_clients():
+async def send_message_to_clients(application):
     """
-    Fetch clients from the API and send them a message via Telegram.
+    Fetch clients and send them a message via Telegram asynchronously.
     """
     message_template = load_message()
-    clients = fetch_clients()
+    clients = await fetch_clients()
 
     if not clients:
         print("No clients to send messages to.")
@@ -41,10 +40,36 @@ def send_message_to_clients():
 
         try:
             # Send message to each client via Telegram using HTML formatting
-            bot.send_message(chat_id=telegram_id, text=message, parse_mode=telegram.ParseMode.HTML)
+            await application.bot.send_message(chat_id=telegram_id, text=message, parse_mode=telegram.constants.ParseMode.HTML)
             print(f"Message sent to {username} (Telegram ID: {telegram_id})")
         except Exception as e:
             print(f"Failed to send message to {telegram_id}: {e}")
 
-if __name__ == '__main__':
-    send_message_to_clients()
+    print("All messages sent successfully!")
+
+async def main():
+    # Initialize the Telegram bot application
+    application = Application.builder().token(BOT_TOKEN).build()
+
+    # Initialize the bot
+    await application.initialize()
+
+    # Ask the user in the CMD whether to send messages
+    while True:
+        action = input("What do you want to do? (send/exit): ").lower()
+
+        if action == "send":
+            await send_message_to_clients(application)
+
+        elif action == "exit":
+            print("Exiting...")
+            break
+
+        else:
+            print("Invalid input. Please type 'send' or 'exit'.")
+
+    # Shut down the application
+    await application.shutdown()
+
+if __name__ == "__main__":
+    asyncio.run(main())

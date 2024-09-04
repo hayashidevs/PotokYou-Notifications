@@ -26,4 +26,7 @@ data/*.json
 
 # Ignore config.py
 bot/config.py
+
+# Ignore message.yaml
+bot/message.yaml
 # Additional custom directories or files can be added here, if it will be needed in future development.
