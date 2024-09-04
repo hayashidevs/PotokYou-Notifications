@@ -1,0 +1,29 @@
+# Ignore virtual environment directories
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.env
+
+# Cache files / Builds / DLL's
+__pycache__/
+*.pyd
+build/
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore everything in the logs directory
+logs/*
+
+# Except for __init__.py
+!logs/__init__.py
+
+# Ignore all .json files in the data directory
+data/*.json
+
+# Ignore config.py
+bot/config.py
+# Additional custom directories or files can be added here, if it will be needed in future development.
